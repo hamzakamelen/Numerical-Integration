@@ -37,16 +37,18 @@ if(option==1):
       print(f"Solution by Simpson's 3/8 Rule is {Result}")
 
 if(option==2):
-      ValueofFxSt = input("Enter Value of `f(x)`")
+      ValueofFxSt = input("Enter Value of `f(x)` ")
       try:
-            ValueofFx = eval(ValueofFxSt)  # Convert string to function object (if possible)
+            ValueofFx = lambda x: eval(ValueofFxSt)  # Convert string to function object (if possible)
       except SyntaxError:
             print("Invalid function")
-      Valueofa = input("Enter Value of `a`")
-      Valueofb = input("Enter Value of `b`")
-      Interval = int(input("Enter no of Interval `n` (Must be Multple of three)"))
+      Valueofa = int(input("Enter Value of `a`"))
+      Valueofb = int(input("Enter Value of `b`"))
+      if(Valueofa>=Valueofb):
+            raise ValueError("Lower bound must be less than upper bound.")
+      else:
+            Interval = int(input("Enter no of Interval `n` (Must be Multple of three)"))
       if(Interval % 3 == 0 ):
             raise ValueError("Interval Must be Multiple of 3")
-      
-      
+      h = (Valueofb - Valueofa) / Interval
       
