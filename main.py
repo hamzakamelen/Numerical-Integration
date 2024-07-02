@@ -77,7 +77,6 @@ def main():
         result = trapezoidal_rule(f, a, b, n)
 
 
-
     st.write(f"Estimated value: {result}")
 
     # Visualization
