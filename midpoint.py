@@ -2,16 +2,13 @@ import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
 
-
 def midpoint_rule(f, a, b, n):
     dx = (b - a) / n
     x = np.linspace(a + dx / 2, b - dx / 2, n)
     return dx * np.sum(f(x))
 
-
 def f(x):
     return x ** 2
-
 
 def main():
     st.title("Numerical Integration using Midpoint Rule")
@@ -43,7 +40,6 @@ def main():
     fig, ax = plt.subplots()
     ax.plot(x, y, 'b-', label='f(x)')
 
-    # Plot rectangles
     dx = (b - a) / n
     for i in range(n):
         x_left = a + i * dx
@@ -51,14 +47,12 @@ def main():
         y_mid = f(x_mid)
         ax.add_patch(plt.Rectangle((x_left, 0), dx, y_mid, fill=False, edgecolor='r'))
 
-
     ax.set_xlabel('x')
     ax.set_ylabel('y')
     ax.legend()
     ax.set_title('Midpoint Rule Visualization')
 
     st.pyplot(fig)
-
 
 if __name__ == "__main__":
     main()
