@@ -2,12 +2,15 @@ import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
 
-# We'll import the specific functions later when they're needed
+# Importing the methods
+from Trapezoidal import trapezoidal_rule, trapezoidal_rule_discrete, trapezoidal_rule_interactive
+from simpson_1_3 import simpson_1_3, simpson_1_3_func
+from simpson_3_8 import simpson_3_8
+from midpoint import midpoint_rule
 
 def plot_integration(f, a, b, n, method):
     x = np.linspace(a, b, 200)
     y = f(x)
-
     fig, ax = plt.subplots()
     ax.plot(x, y, 'b-', label='f(x)')
 
@@ -54,31 +57,68 @@ def main():
         return
 
     if method == "Midpoint Rule":
-        from midpoint import midpoint_rule
         result = midpoint_rule(f, a, b, n)
+
+    #------------------
     elif method == "Simpson's 1/3 Rule":
-        from simpson_1_3 import simpson_1_3
-        if n % 2 != 0:
-            st.warning("Number of subintervals must be even for Simpson's 1/3 Rule. Adjusting to the next even number.")
-            n += 1
-        x = np.linspace(a, b, n+1)
-        Fx = f(x)
-        result = simpson_1_3(x, Fx, (b-a)/n)
+        simpson_option = st.radio(
+            "Choose Simpson's 1/3 Rule type",
+            ["Continuous function", "Discrete data points"]
+        )
+
+        if simpson_option == "Continuous function":
+            if n % 2 != 0:
+                st.warning(
+                    "Number of subintervals must be even for Simpson's 1/3 Rule. Adjusting to the next even number.")
+                n += 1
+            result = simpson_1_3_func(f, a, b, n)
+        else:
+            x_values = st.text_input("Enter x values (comma-separated)")
+            fx_values = st.text_input("Enter f(x) values (comma-separated)")
+
+            if x_values and fx_values:
+                x = [float(x.strip()) for x in x_values.split(",")]
+                fx = [float(fx.strip()) for fx in fx_values.split(",")]
+                if len(x) % 2 == 0:
+                    st.warning("Number of points must be odd for Simpson's 1/3 Rule. Removing the last point.")
+                    x = x[:-1]
+                    fx = fx[:-1]
+                result = simpson_1_3(x, fx)
+            else:
+                st.warning("Please enter both x and f(x) values.")
+                return
+
+        #-------
     elif method == "Simpson's 3/8 Rule":
-        from simpson_3_8 import simpsom_3_8
         if n % 3 != 0:
             st.warning("Number of subintervals must be a multiple of 3 for Simpson's 3/8 Rule. Adjusting to the next multiple of 3.")
             n += (3 - n % 3)
-        x = np.linspace(a, b, n+1)
-        Fx = f(x)
-        result = simpsom_3_8(x, Fx, (b-a)/n)
+        result = simpson_3_8(f, a, b, n)
     elif method == "Trapezoidal Rule":
-        from trapezoidal import trapezoidal_rule
-        result = trapezoidal_rule(f, a, b, n)
+        trapezoidal_option = st.radio(
+            "Choose Trapezoidal Rule type",
+            ["Continuous function", "Discrete data points"]
+        )
 
+        if trapezoidal_option == "Continuous function":
+            result = trapezoidal_rule(f, a, b, n)
+        else:
+            x_values = st.text_input("Enter x values (comma-separated)")
+            fx_values = st.text_input("Enter f(x) values (comma-separated)")
 
+            if x_values and fx_values:
+                x = [float(x.strip()) for x in x_values.split(",")]
+                fx = [float(fx.strip()) for fx in fx_values.split(",")]
+                result = trapezoidal_rule_discrete(x, fx)
+            else:
+                st.warning("Please enter both x and f(x) values.")
+                return
 
+    # For demonstration purposes, actual value for x^2 integration
+    actual = (b ** 3 - a ** 3) / 3  # Actual value for x^2 if that's the function
     st.write(f"Estimated value: {result}")
+    st.write(f"Actual value: {actual}")
+    st.write(f"Error: {abs(actual - result)}")
 
     # Visualization
     fig = plot_integration(f, a, b, n, method.split()[0])
