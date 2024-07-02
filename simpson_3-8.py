@@ -1,4 +1,7 @@
 def simpsom_3_8(x,Fx,h):
+      # Takes x and Fx in List Data Type 
+      if len(x) != len(Fx):
+            raise ValueError("Length of x and Fx must be equal.")
       SumOfMultipleof3 = 0
       SumOfRemaining = 0
       for i in range(1,len(Fx)-1):
@@ -6,6 +9,8 @@ def simpsom_3_8(x,Fx,h):
                   SumOfMultipleof3 += Fx[i]
             else:
                   SumOfRemaining += Fx[i]
+      print("""Formula:
+      ∫ydx= 3h/8 (y0+2(y3+y6+...+yn-3)+3(y1+y2+y4+y5+...+yn-2+yn-1)+yn)""")
       print(f"∫ydx = 3x{h}/8 ({Fx[0]}+2({SumOfMultipleof3})+3({SumOfRemaining})+{Fx[-1]})")
       Answer = (3*h/8)*(Fx[0]+2*SumOfMultipleof3+3*SumOfRemaining+Fx[-1])
       Result = round(Answer,3) 
