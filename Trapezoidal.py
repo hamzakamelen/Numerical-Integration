@@ -77,5 +77,6 @@ def trapezoidal_rule_interactive():
         return None
 
 
+
 if __name__ == "__main__":
     trapezoidal_rule_interactive()

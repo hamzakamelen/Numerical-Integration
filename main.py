@@ -88,6 +88,7 @@ def main():
                 st.warning("Please enter both x and f(x) values.")
                 return
 
+
         #-------
     elif method == "Simpson's 3/8 Rule":
         if n % 3 != 0:
