@@ -42,15 +42,15 @@ def main():
 
     method = st.sidebar.selectbox(
         "Select Integration Method",
-        ["Midpoint Rule", "Simpson's 1/3 Rule", "Simpson's 3/8 Rule", "Trapezoidal Rule"]
+        ["Midpoint Rule","Trapezoidal Rule", "Simpson's 1/3 Rule", "Simpson's 3/8 Rule"]
     )
 
     st.header(method)
 
     # Common inputs
     function_str = st.text_input("Enter function (use 'x' as variable)", value="x**2")
-    a = st.number_input("Lower bound (a)", value=0.0)
-    b = st.number_input("Upper bound (b)", value=1.0)
+    a = st.number_input("Lower bound (a)", value=0)
+    b = st.number_input("Upper bound (b)", value=1)
     n = st.number_input("Number of subintervals", min_value=1, value=4)
 
     try:
@@ -68,18 +68,29 @@ def main():
 
     if integration_option == "Continuous function":
         if method == "Midpoint Rule":
+            st.write("""Formula:
+                    ∫[a to b] f(x) dx ≈ h * Σ[i=1 to n] f(x_i)
+                     """)
             result = midpoint_rule(f, a, b, n)
         elif method == "Simpson's 1/3 Rule":
             if n % 2 != 0:
                 st.warning("Number of subintervals must be even for Simpson's 1/3 Rule. Adjusting to the next even number.")
                 n += 1
+            st.write("""Formula:
+                    ∫ydx= (h/3) (y0+4(y1+y3+...+yn-1)+2(y2+y4+...+yn-2)+yn)
+                     """)
             result = simpson_1_3_func(f, a, b, n)
         elif method == "Simpson's 3/8 Rule":
             if n % 3 != 0:
                 st.warning("Number of subintervals must be a multiple of 3 for Simpson's 3/8 Rule. Adjusting to the next multiple of 3.")
                 n += (3 - n % 3)
+            st.write("""Formula:
+                    ∫ydx = 3h/8 (y0 + 2(y3+y6+...+yn-3) + 3(y1+y2+y4+y5+...+yn-2+yn-1) + yn)
+                     """)
             result = simpson_3_8(f, a, b, n)
         elif method == "Trapezoidal Rule":
+            st.write("""Formula:
+            ∫ydx = h/2 (y0 + 2(y1 + y2 + ... + yn-1) + yn)""")
             result = trapezoidal_rule(f, a, b, n)
 
         # Calculate actual value
