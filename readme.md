@@ -1,1 +1,3 @@
 TESTING RIGHT NOW WILL UPDATE THIS LATER
+
+#2 reh gye 2-8 or midpoint

@@ -1,58 +1,88 @@
-import streamlit as st
 import numpy as np
-import matplotlib.pyplot as plt
 
 def midpoint_rule(f, a, b, n):
-    dx = (b - a) / n
-    x = np.linspace(a + dx / 2, b - dx / 2, n)
-    return dx * np.sum(f(x))
+    """
+    Perform numerical integration using the Midpoint Rule.
 
-def f(x):
-    return x ** 2
+    The Midpoint Rule approximates the definite integral of a function f(x)
+    over the interval [a, b] by dividing the interval into n subintervals
+    and summing the function values at the midpoint of each subinterval.
 
-def main():
-    st.title("Numerical Integration using Midpoint Rule")
+    Formula:
+    ∫[a to b] f(x) dx ≈ h * Σ[i=1 to n] f(x_i)
 
-    st.sidebar.header("Input Parameters")
-    a = st.sidebar.number_input("Lower bound (a)", value=0.0)
-    b = st.sidebar.number_input("Upper bound (b)", value=1.0)
-    n = st.sidebar.number_input("Number of subintervals", min_value=1, value=4)
+    where:
+    h = (b - a) / n
+    x_i = a + (i - 1/2) * h
 
-    function_str = st.sidebar.text_input("Enter function (use 'x' as variable)", value="x**2")
+    Parameters:
+    f (function): The function to integrate
+    a (float): Lower bound of integration
+    b (float): Upper bound of integration
+    n (int): Number of subintervals
 
-    try:
-        f = lambda x: eval(function_str)
-    except:
-        st.error("Invalid function. Please enter a valid Python expression.")
-        return
+    Returns:
+    float: Approximation of the definite integral
+    """
+    # Step 1: Calculate the width of each subinterval
+    h = (b - a) / n
+    print(f"Step 1: Calculate h = (b - a) / n = ({b} - {a}) / {n} = {h}")
 
-    result = midpoint_rule(f, a, b, n)
-    actual = (b ** 3 - a ** 3) / 3  # Actual value for x^2
+    # Step 2: Generate midpoints of subintervals
+    x = np.linspace(a + h / 2, b - h / 2, n)
+    print(f"Step 2: Generate midpoints: {x}")
 
-    st.write(f"Estimated value: {result}")
-    st.write(f"Actual value: {actual}")
-    st.write(f"Error: {abs(actual - result)}")
-
-    # Visualization
-    x = np.linspace(a, b, 200)
+    # Step 3: Evaluate function at midpoints
     y = f(x)
+    print(f"Step 3: Evaluate function at midpoints: {y}")
 
-    fig, ax = plt.subplots()
-    ax.plot(x, y, 'b-', label='f(x)')
+    # Step 4: Calculate the sum of function values
+    sum_y = np.sum(y)
+    print(f"Step 4: Calculate sum of function values: {sum_y}")
 
-    dx = (b - a) / n
-    for i in range(n):
-        x_left = a + i * dx
-        x_mid = x_left + dx / 2
-        y_mid = f(x_mid)
-        ax.add_patch(plt.Rectangle((x_left, 0), dx, y_mid, fill=False, edgecolor='r'))
+    # Step 5: Calculate the final result
+    result = h * sum_y
+    print(f"Step 5: Calculate final result: h * sum = {h} * {sum_y} = {result}")
 
-    ax.set_xlabel('x')
-    ax.set_ylabel('y')
-    ax.legend()
-    ax.set_title('Midpoint Rule Visualization')
+    print("\nMidpoint Rule Formula:")
+    print(f"∫[{a} to {b}] f(x) dx ≈ {h} * ({' + '.join([f'f({xi:.2f})' for xi in x])})")
+    print(f"                    ≈ {h} * {sum_y}")
+    print(f"                    ≈ {result}")
 
-    st.pyplot(fig)
+    return result
 
-if __name__ == "__main__":
-    main()
+def midpoint_rule_discrete(x, y):
+    """
+    Perform numerical integration using the Midpoint Rule for discrete data points.
+
+    The Midpoint Rule for discrete data approximates the area under the curve
+    represented by the data points using rectangles centered at each point.
+
+    Formula:
+    ∫ y dx ≈ Σ[i=1 to n-1] (x[i+1] - x[i]) * y[i]
+
+    Parameters:
+    x (array-like): x-coordinates of data points
+    y (array-like): y-coordinates of data points
+
+    Returns:
+    float: Approximation of the definite integral
+    """
+    if len(x) != len(y):
+        raise ValueError("x and y must have the same length")
+
+    n = len(x)
+    result = 0
+
+    print("Midpoint Rule for Discrete Data:")
+    print("Formula: ∫ y dx ≈ Σ (x[i+1] - x[i]) * y[i]")
+
+    for i in range(n - 1):
+        dx = x[i + 1] - x[i]
+        area = dx * y[i]
+        result += area
+        print(f"Step {i+1}: ({x[i+1]} - {x[i]}) * {y[i]} = {area}")
+
+    print(f"\nFinal Result: {result}")
+
+    return result

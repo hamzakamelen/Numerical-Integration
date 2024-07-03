@@ -5,9 +5,10 @@ import matplotlib.pyplot as plt
 # Importing the methods
 from Trapezoidal import trapezoidal_rule, trapezoidal_rule_discrete, trapezoidal_rule_interactive
 from simpson_1_3 import simpson_1_3, simpson_1_3_func
-from simpson_3_8 import simpson_3_8
-from midpoint import midpoint_rule
+from simpson_3_8 import simpson_3_8, simpson_3_8_discrete
+from midpoint import midpoint_rule, midpoint_rule_discrete
 
+#MATPLOT FOR GRAPHS
 def plot_integration(f, a, b, n, method):
     x = np.linspace(a, b, 200)
     y = f(x)
@@ -34,6 +35,7 @@ def plot_integration(f, a, b, n, method):
 
     return fig
 
+#main function
 def main():
     st.title("Numerical Integration Methods")
 
@@ -55,9 +57,30 @@ def main():
     except:
         st.error("Invalid function. Please enter a valid Python expression.")
         return
-
+#-------------------------------------------
     if method == "Midpoint Rule":
-        result = midpoint_rule(f, a, b, n)
+        midpoint_option = st.radio(
+            "Choose Midpoint Rule type",
+            ["Continuous function", "Discrete data points"]
+        )
+
+        if midpoint_option == "Continuous function":
+            result = midpoint_rule(f, a, b, n)
+            st.text("Detailed Midpoint Rule Calculation:")
+            st.code(result)  # The result now includes step-by-step calculations
+        else:
+            x_values = st.text_input("Enter x values (comma-separated)")
+            y_values = st.text_input("Enter y values (comma-separated)")
+
+            if x_values and y_values:
+                x = [float(x.strip()) for x in x_values.split(",")]
+                y = [float(y.strip()) for y in y_values.split(",")]
+                result = midpoint_rule_discrete(x, y)
+                st.text("Detailed Midpoint Rule Calculation for Discrete Data:")
+                st.code(result)  # The result now includes step-by-step calculations
+            else:
+                st.warning("Please enter both x and y values.")
+                return
 
     #------------------
     elif method == "Simpson's 1/3 Rule":
@@ -91,10 +114,35 @@ def main():
 
         #-------
     elif method == "Simpson's 3/8 Rule":
-        if n % 3 != 0:
-            st.warning("Number of subintervals must be a multiple of 3 for Simpson's 3/8 Rule. Adjusting to the next multiple of 3.")
-            n += (3 - n % 3)
-        result = simpson_3_8(f, a, b, n)
+        simpson_option = st.radio(
+            "Choose Simpson's 3/8 Rule type",
+            ["Continuous function", "Discrete data points"]
+        )
+
+        if simpson_option == "Continuous function":
+            if n % 3 != 0:
+                st.warning(
+                    "Number of subintervals must be a multiple of 3 for Simpson's 3/8 Rule. Adjusting to the next multiple of 3.")
+                n += (3 - n % 3)
+            result = simpson_3_8(f, a, b, n)
+        else:
+            x_values = st.text_input("Enter x values (comma-separated)")
+            y_values = st.text_input("Enter y values (comma-separated)")
+
+            if x_values and y_values:
+                x = [float(x.strip()) for x in x_values.split(",")]
+                y = [float(y.strip()) for y in y_values.split(",")]
+                if len(x) % 3 != 1:
+                    st.warning(
+                        "Number of points must be of the form 3n + 1 for Simpson's 3/8 Rule. Removing extra points.")
+                    x = x[:-(len(x) % 3) + 1]
+                    y = y[:-(len(y) % 3) + 1]
+                result = simpson_3_8_discrete(x, y)
+            else:
+                st.warning("Please enter both x and y values.")
+                return
+
+    #-------------------
     elif method == "Trapezoidal Rule":
         trapezoidal_option = st.radio(
             "Choose Trapezoidal Rule type",
@@ -115,7 +163,11 @@ def main():
                 st.warning("Please enter both x and f(x) values.")
                 return
 
+
+
     # For demonstration purposes, actual value for x^2 integration
+
+    #--------------------------------------------------------
     actual = (b ** 3 - a ** 3) / 3  # Actual value for x^2 if that's the function
     st.write(f"Estimated value: {result}")
     st.write(f"Actual value: {actual}")
