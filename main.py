@@ -1,14 +1,15 @@
 import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
+from scipy import integrate
 
 # Importing the methods
-from Trapezoidal import trapezoidal_rule, trapezoidal_rule_discrete, trapezoidal_rule_interactive
+from Trapezoidal import trapezoidal_rule, trapezoidal_rule_discrete
 from simpson_1_3 import simpson_1_3, simpson_1_3_func
 from simpson_3_8 import simpson_3_8, simpson_3_8_discrete
 from midpoint import midpoint_rule, midpoint_rule_discrete
 
-#MATPLOT FOR GRAPHS
+# MATPLOT FOR GRAPHS
 def plot_integration(f, a, b, n, method):
     x = np.linspace(a, b, 200)
     y = f(x)
@@ -35,7 +36,7 @@ def plot_integration(f, a, b, n, method):
 
     return fig
 
-#main function
+# Main function
 def main():
     st.title("Numerical Integration Methods")
 
@@ -54,128 +55,98 @@ def main():
 
     try:
         f = lambda x: eval(function_str)
-    except:
-        st.error("Invalid function. Please enter a valid Python expression.")
+        # Test the function
+        f(1)
+    except Exception as e:
+        st.error(f"Invalid function. Please enter a valid Python expression. Error: {str(e)}")
         return
-#-------------------------------------------
-    if method == "Midpoint Rule":
-        midpoint_option = st.radio(
-            "Choose Midpoint Rule type",
-            ["Continuous function", "Discrete data points"]
-        )
 
-        if midpoint_option == "Continuous function":
+    integration_option = st.radio(
+        "Choose integration type",
+        ["Continuous function", "Discrete data points"]
+    )
+
+    if integration_option == "Continuous function":
+        if method == "Midpoint Rule":
             result = midpoint_rule(f, a, b, n)
-            st.text("Detailed Midpoint Rule Calculation:")
-            st.code(result)  # The result now includes step-by-step calculations
-        else:
-            x_values = st.text_input("Enter x values (comma-separated)")
-            y_values = st.text_input("Enter y values (comma-separated)")
-
-            if x_values and y_values:
-                x = [float(x.strip()) for x in x_values.split(",")]
-                y = [float(y.strip()) for y in y_values.split(",")]
-                result = midpoint_rule_discrete(x, y)
-                st.text("Detailed Midpoint Rule Calculation for Discrete Data:")
-                st.code(result)  # The result now includes step-by-step calculations
-            else:
-                st.warning("Please enter both x and y values.")
-                return
-
-    #------------------
-    elif method == "Simpson's 1/3 Rule":
-        simpson_option = st.radio(
-            "Choose Simpson's 1/3 Rule type",
-            ["Continuous function", "Discrete data points"]
-        )
-
-        if simpson_option == "Continuous function":
+        elif method == "Simpson's 1/3 Rule":
             if n % 2 != 0:
-                st.warning(
-                    "Number of subintervals must be even for Simpson's 1/3 Rule. Adjusting to the next even number.")
+                st.warning("Number of subintervals must be even for Simpson's 1/3 Rule. Adjusting to the next even number.")
                 n += 1
             result = simpson_1_3_func(f, a, b, n)
-        else:
-            x_values = st.text_input("Enter x values (comma-separated)")
-            fx_values = st.text_input("Enter f(x) values (comma-separated)")
-
-            if x_values and fx_values:
-                x = [float(x.strip()) for x in x_values.split(",")]
-                fx = [float(fx.strip()) for fx in fx_values.split(",")]
-                if len(x) % 2 == 0:
-                    st.warning("Number of points must be odd for Simpson's 1/3 Rule. Removing the last point.")
-                    x = x[:-1]
-                    fx = fx[:-1]
-                result = simpson_1_3(x, fx)
-            else:
-                st.warning("Please enter both x and f(x) values.")
-                return
-
-
-        #-------
-    elif method == "Simpson's 3/8 Rule":
-        simpson_option = st.radio(
-            "Choose Simpson's 3/8 Rule type",
-            ["Continuous function", "Discrete data points"]
-        )
-
-        if simpson_option == "Continuous function":
+        elif method == "Simpson's 3/8 Rule":
             if n % 3 != 0:
-                st.warning(
-                    "Number of subintervals must be a multiple of 3 for Simpson's 3/8 Rule. Adjusting to the next multiple of 3.")
+                st.warning("Number of subintervals must be a multiple of 3 for Simpson's 3/8 Rule. Adjusting to the next multiple of 3.")
                 n += (3 - n % 3)
             result = simpson_3_8(f, a, b, n)
-        else:
-            x_values = st.text_input("Enter x values (comma-separated)")
-            y_values = st.text_input("Enter y values (comma-separated)")
+        elif method == "Trapezoidal Rule":
+            result = trapezoidal_rule(f, a, b, n)
 
-            if x_values and y_values:
+        # Calculate actual value
+        actual, _ = integrate.quad(f, a, b)
+
+        st.write(f"Estimated value: {result}")
+        st.write(f"Actual value: {actual}")
+        st.write(f"Error: {abs(actual - result)}")
+
+        # Visualization
+        fig = plot_integration(f, a, b, n, method.split()[0])
+        st.pyplot(fig)
+
+    else:  # Discrete data points
+        x_values = st.text_input("Enter x values (comma-separated)")
+        y_values = st.text_input("Enter y values (comma-separated)")
+
+        if x_values and y_values:
+            try:
                 x = [float(x.strip()) for x in x_values.split(",")]
                 y = [float(y.strip()) for y in y_values.split(",")]
-                if len(x) % 3 != 1:
-                    st.warning(
-                        "Number of points must be of the form 3n + 1 for Simpson's 3/8 Rule. Removing extra points.")
-                    x = x[:-(len(x) % 3) + 1]
-                    y = y[:-(len(y) % 3) + 1]
-                result = simpson_3_8_discrete(x, y)
-            else:
-                st.warning("Please enter both x and y values.")
-                return
 
-    #-------------------
-    elif method == "Trapezoidal Rule":
-        trapezoidal_option = st.radio(
-            "Choose Trapezoidal Rule type",
-            ["Continuous function", "Discrete data points"]
-        )
+                if len(x) != len(y):
+                    st.error("The number of x values must be equal to the number of y values.")
+                    return
 
-        if trapezoidal_option == "Continuous function":
-            result = trapezoidal_rule(f, a, b, n)
+                if len(x) < 2:
+                    st.error("At least two data points are required for integration.")
+                    return
+
+                if method == "Midpoint Rule":
+                    result = midpoint_rule_discrete(x, y)
+                elif method == "Simpson's 1/3 Rule":
+                    if len(x) % 2 == 0:
+                        st.warning("Number of points must be odd for Simpson's 1/3 Rule. Removing the last point.")
+                        x = x[:-1]
+                        y = y[:-1]
+                    if len(x) < 3:
+                        st.error("At least three points are required for Simpson's 1/3 Rule.")
+                        return
+                    result = simpson_1_3(x, y)
+                elif method == "Simpson's 3/8 Rule":
+                    if len(x) % 3 != 1:
+                        st.warning("Number of points must be of the form 3n + 1 for Simpson's 3/8 Rule. Removing extra points.")
+                        x = x[:-(len(x) % 3) + 1]
+                        y = y[:-(len(y) % 3) + 1]
+                    if len(x) < 4:
+                        st.error("At least four points are required for Simpson's 3/8 Rule.")
+                        return
+                    result = simpson_3_8_discrete(x, y)
+                elif method == "Trapezoidal Rule":
+                    result = trapezoidal_rule_discrete(x, y)
+
+                st.write(f"Estimated value: {result}")
+
+                # Plot discrete data points
+                fig, ax = plt.subplots()
+                ax.plot(x, y, 'ro-', linewidth=2, markersize=4)
+                ax.set_xlabel('x')
+                ax.set_ylabel('y')
+                ax.set_title(f'{method} - Discrete Data Points')
+                st.pyplot(fig)
+
+            except Exception as e:
+                st.error(f"Error processing discrete data: {str(e)}")
         else:
-            x_values = st.text_input("Enter x values (comma-separated)")
-            fx_values = st.text_input("Enter f(x) values (comma-separated)")
-
-            if x_values and fx_values:
-                x = [float(x.strip()) for x in x_values.split(",")]
-                fx = [float(fx.strip()) for fx in fx_values.split(",")]
-                result = trapezoidal_rule_discrete(x, fx)
-            else:
-                st.warning("Please enter both x and f(x) values.")
-                return
-
-
-
-    # For demonstration purposes, actual value for x^2 integration
-
-    #--------------------------------------------------------
-    actual = (b ** 3 - a ** 3) / 3  # Actual value for x^2 if that's the function
-    st.write(f"Estimated value: {result}")
-    st.write(f"Actual value: {actual}")
-    st.write(f"Error: {abs(actual - result)}")
-
-    # Visualization
-    fig = plot_integration(f, a, b, n, method.split()[0])
-    st.pyplot(fig)
+            st.warning("Please enter both x and y values for discrete data points.")
 
 if __name__ == "__main__":
     main()
