@@ -1,6 +1,15 @@
 # Numerical Integration Methods
 
-This is a university project that implements various numerical integration methods using Python and Streamlit.
+This is a university *4th* Semester project that implements various numerical integration methods including *Midpoint, Trapezoid, Simpson's 1/3 and Simpson 3/8* using Python and Streamlit.
+
+#### Note: This is Team/Group Project
+#### Team Members
+- Hamza Kamelen
+- Muzamil Khalid
+- Wajahat Tariq
+- Moiz Mansoori
+- Rayyan Ahmed
+- Muhammad Sami
 
 ## Overview
 

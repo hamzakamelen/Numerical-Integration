@@ -1,4 +1,7 @@
 def simpson_1_3(x, Fx, h):
+    # Takes x and Fx in List Data Type
+    if len(x) != len(Fx):
+        raise ValueError("Length of x and Fx must be equal.")
     SumOfEven = 0
     SumOfOdd = 0
     for i in range(1, len(Fx) - 1):
@@ -6,6 +9,8 @@ def simpson_1_3(x, Fx, h):
             SumOfEven += Fx[i]
         else:
             SumOfOdd += Fx[i]
+    print("""Formula:
+    ∫ydx= (h/3) (y0+4(y1+y3+...+yn-1)+2(y2+y4+...+yn-2)+yn)""")
     print(f"∫ydx = (h/3) ({Fx[0]}+4({SumOfOdd})+2({SumOfEven})+{Fx[-1]})")
     Answer = (h / 3) * (Fx[0] + 4 * SumOfOdd + 2 * SumOfEven + Fx[-1])
     Result = round(Answer, 3)

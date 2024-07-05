@@ -44,7 +44,15 @@ def main():
         "Select Integration Method",
         ["Midpoint Rule","Trapezoidal Rule", "Simpson's 1/3 Rule", "Simpson's 3/8 Rule"]
     )
-
+    st.sidebar.title("""
+    Prepared By:\n
+    Hamza Kamelen 22F-BSAI-09\n
+    Muzamil Khalid 22F-BSAI-29\n
+    Moiz Mansoori 22F-BSAI-32\n
+    Wajahat Tariq 22F-BSAI-17\n
+    Rayyan Ahmed 22F-BSAI-11\n
+    Muhammad Sami 22F-BSAI-43             
+    """)
     st.header(method)
 
     # Common inputs
