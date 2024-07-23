@@ -45,7 +45,6 @@ def simpson_3_8_discrete(x, y):
 
     return result
 
-
 # Keep the original function name for backwards compatibility
 def simpsom_3_8(x, Fx, h):
     return simpson_3_8_discrete(x, Fx)
