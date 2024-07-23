@@ -2,6 +2,7 @@ import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy import integrate
+import math
 
 # Importing the methods
 from Trapezoidal import trapezoidal_rule, trapezoidal_rule_discrete
@@ -9,16 +10,17 @@ from simpson_1_3 import simpson_1_3, simpson_1_3_func
 from simpson_3_8 import simpson_3_8, simpson_3_8_discrete
 from midpoint import midpoint_rule, midpoint_rule_discrete
 
+
 # MATPLOT FOR GRAPHS
 def plot_integration(f, a, b, n, method):
     x = np.linspace(a, b, 200)
-    y = f(x)
+    y = [f(xi) for xi in x]  # Use list comprehension instead of direct application
     fig, ax = plt.subplots()
     ax.plot(x, y, 'b-', label='f(x)')
 
     dx = (b - a) / n
     x_points = np.linspace(a, b, n + 1)
-    y_points = f(x_points)
+    y_points = [f(xi) for xi in x_points]  # Use list comprehension here as well
 
     if method == "Midpoint":
         for i in range(n):
@@ -36,13 +38,46 @@ def plot_integration(f, a, b, n, method):
 
     return fig
 
+
+# Function to parse and evaluate the user input
+def parse_function(function_str):
+    # Define a dictionary of allowed functions
+    allowed_functions = {
+        'sin': np.sin,
+        'cos': np.cos,
+        'tan': np.tan,
+        'arcsin': np.arcsin,
+        'arccos': np.arccos,
+        'arctan': np.arctan,
+        'sinh': np.sinh,
+        'cosh': np.cosh,
+        'tanh': np.tanh,
+        'exp': np.exp,
+        'log': np.log,
+        'log10': np.log10,
+        'sqrt': np.sqrt,
+        'abs': np.abs,
+        'pi': np.pi,
+        'e': np.e
+    }
+
+    # Create a safe dictionary with allowed functions and numpy
+    safe_dict = {**allowed_functions, 'np': np}
+
+    # Replace '^' with '**' for exponentiation
+    function_str = function_str.replace('^', '**')
+
+    # Define the lambda function
+    return lambda x: eval(function_str, {"__builtins__": None}, {**safe_dict, 'x': x})
+
+
 # Main function
 def main():
     st.title("Numerical Integration Methods")
 
     method = st.sidebar.selectbox(
         "Select Integration Method",
-        ["Midpoint Rule","Trapezoidal Rule", "Simpson's 1/3 Rule", "Simpson's 3/8 Rule"]
+        ["Midpoint Rule", "Trapezoidal Rule", "Simpson's 1/3 Rule", "Simpson's 3/8 Rule"]
     )
     st.sidebar.title("""
     Prepared By:\n
@@ -56,17 +91,18 @@ def main():
     st.header(method)
 
     # Common inputs
-    function_str = st.text_input("Enter function (use 'x' as variable)", value="x**2")
-    a = st.number_input("Lower bound (a)", value=0)
-    b = st.number_input("Upper bound (b)", value=1)
+    function_str = st.text_input(
+        "Enter function (use 'x' as variable, e.g., 'sin(x)', 'cos(x)', 'tan(x)', 'x^2', etc.)", value="x^2")
+    a = st.number_input("Lower bound (a)", value=0.0)
+    b = st.number_input("Upper bound (b)", value=1.0)
     n = st.number_input("Number of subintervals", min_value=1, value=4)
 
     try:
-        f = lambda x: eval(function_str)
+        f = parse_function(function_str)
         # Test the function
         f(1)
     except Exception as e:
-        st.error(f"Invalid function. Please enter a valid Python expression. Error: {str(e)}")
+        st.error(f"Invalid function. Please enter a valid expression. Error: {str(e)}")
         return
 
     integration_option = st.radio(
@@ -82,7 +118,8 @@ def main():
             result = midpoint_rule(f, a, b, n)
         elif method == "Simpson's 1/3 Rule":
             if n % 2 != 0:
-                st.warning("Number of subintervals must be even for Simpson's 1/3 Rule. Adjusting to the next even number.")
+                st.warning(
+                    "Number of subintervals must be even for Simpson's 1/3 Rule. Adjusting to the next even number.")
                 n += 1
             st.write("""Formula:
                     ∫ydx= (h/3) (y0+4(y1+y3+...+yn-1)+2(y2+y4+...+yn-2)+yn)
@@ -90,7 +127,8 @@ def main():
             result = simpson_1_3_func(f, a, b, n)
         elif method == "Simpson's 3/8 Rule":
             if n % 3 != 0:
-                st.warning("Number of subintervals must be a multiple of 3 for Simpson's 3/8 Rule. Adjusting to the next multiple of 3.")
+                st.warning(
+                    "Number of subintervals must be a multiple of 3 for Simpson's 3/8 Rule. Adjusting to the next multiple of 3.")
                 n += (3 - n % 3)
             st.write("""Formula:
                     ∫ydx = 3h/8 (y0 + 2(y3+y6+...+yn-3) + 3(y1+y2+y4+y5+...+yn-2+yn-1) + yn)
@@ -142,7 +180,8 @@ def main():
                     result = simpson_1_3(x, y)
                 elif method == "Simpson's 3/8 Rule":
                     if len(x) % 3 != 1:
-                        st.warning("Number of points must be of the form 3n + 1 for Simpson's 3/8 Rule. Removing extra points.")
+                        st.warning(
+                            "Number of points must be of the form 3n + 1 for Simpson's 3/8 Rule. Removing extra points.")
                         x = x[:-(len(x) % 3) + 1]
                         y = y[:-(len(y) % 3) + 1]
                     if len(x) < 4:
@@ -166,6 +205,7 @@ def main():
                 st.error(f"Error processing discrete data: {str(e)}")
         else:
             st.warning("Please enter both x and y values for discrete data points.")
+
 
 if __name__ == "__main__":
     main()
